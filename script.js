@@ -1,0 +1,92 @@
+// script.js
+const ramos = [
+  { nombre: "Introducción al del Derecho" },
+  { nombre: "Taller de Escritura" },
+  { nombre: "Historia de las Instituciones jurídicas" },
+  { nombre: "D° Politico" },
+  { nombre: "Introducción al D° Privado" },
+  { nombre: "Acto Jurídico" },
+  { nombre: "Derecho Constitucional Orgánico", abre: ["D° administrativo I"] },
+  { nombre: "Historia Institucional de Chile" },
+  { nombre: "Expr. oral y Argumentación" },
+  { nombre: "Bienes" },
+  { nombre: "Obligaciones", abre: ["Responsabilidad", "Contratos"] },
+  { nombre: "Fundamentos del D° Penal y Teo.del Delito", abre: ["Estudio de los delitos"] },
+  { nombre: "Fundamentos de Derecho Procesal" },
+  { nombre: "Derechos fundamentales" },
+  { nombre: "Introducción a la economía" },
+  { nombre: "D° administrativo I" },
+  { nombre: "Acciones constitucionales" },
+  { nombre: "Normas comunes a todo procedimiento", abre: ["Recursos procesales y J. ejecut"] },
+  { nombre: "Responsabilidad" },
+  { nombre: "D° del trabajo I" },
+  { nombre: "D° del trabajo II" },
+  { nombre: "Procedimiento civil", abre: ["Clínica I"] },
+  { nombre: "Contratos" },
+  { nombre: "Participación criminal y pena" },
+  { nombre: "D° internacional publico" },
+  { nombre: "D° administrativo II" },
+  { nombre: "Recursos procesales y J. ejecut" },
+  { nombre: "D° de familia", abre: ["Clínica I"] },
+  { nombre: "D° sucesorio" },
+  { nombre: "D° comercial I" },
+  { nombre: "Políticas de equidad y genero" },
+  { nombre: "Derecho comercial II" },
+  { nombre: "D° economico" },
+  { nombre: "Estudio de los delitos" },
+  { nombre: "Solución alter, conflictos" },
+  { nombre: "Proceso penal" },
+  { nombre: "Ética" },
+  { nombre: "Taller de litigación" },
+  { nombre: "Sustentabilidad y medio ambiente" },
+  { nombre: "Clínica I" },
+  { nombre: "Procedimientos de Familia" },
+  { nombre: "D° Tributario I" },
+  { nombre: "D° Tributario II" },
+  { nombre: "filosofía del Derecho" },
+  { nombre: "Clínica II" },
+  { nombre: "Seminario de Integración Derecho Privado" },
+  { nombre: "Seminario de Integración Derecho Público" },
+  { nombre: "Multiculturalidad y Migraciones" },
+  { nombre: "Taller de Investigación Jca" }
+];
+
+const estado = {};
+const contenedor = document.querySelector(".malla");
+
+function crearRamos() {
+  ramos.forEach(ramo => {
+    const div = document.createElement("div");
+    div.className = "ramo";
+    div.textContent = ramo.nombre;
+    div.dataset.nombre = ramo.nombre;
+    if (ramo.abre) div.dataset.abre = JSON.stringify(ramo.abre);
+    div.addEventListener("click", () => aprobarRamo(ramo.nombre));
+    contenedor.appendChild(div);
+    estado[ramo.nombre] = { aprobado: false, desbloqueado: !tieneRequisitos(ramo.nombre) };
+    actualizarEstadoVisual(div, ramo.nombre);
+  });
+}
+
+function tieneRequisitos(nombre) {
+  return ramos.some(r => r.abre && r.abre.includes(nombre));
+}
+
+function aprobarRamo(nombre) {
+  const ramo = ramos.find(r => r.nombre === nombre);
+  if (!estado[nombre].desbloqueado) return;
+  estado[nombre].aprobado = !estado[nombre].aprobado;
+  document.querySelectorAll(`.ramo[data-nombre="${nombre}"]`).forEach(el => actualizarEstadoVisual(el, nombre));
+  if (ramo.abre) ramo.abre.forEach(n => {
+    if (estado[n]) estado[n].desbloqueado = true;
+    document.querySelectorAll(`.ramo[data-nombre="${n}"]`).forEach(el => actualizarEstadoVisual(el, n));
+  });
+}
+
+function actualizarEstadoVisual(div, nombre) {
+  div.classList.remove("aprobado", "bloqueado");
+  if (estado[nombre].aprobado) div.classList.add("aprobado");
+  else if (!estado[nombre].desbloqueado) div.classList.add("bloqueado");
+}
+
+crearRamos();
